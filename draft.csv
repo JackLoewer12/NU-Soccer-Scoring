@@ -1,0 +1,49 @@
+pick,round,team_name,members,country
+1,1,Dexter,Dexter,Spain
+2,1,Tommy,Tommy,France
+3,1,Conrad,Conrad,England
+4,1,Harrison,Harrison,Argentina
+5,1,Diego,Diego,Brazil
+6,1,Ben (Jack),Ben (Jack),Portugal
+7,2,Dexter,Dexter,Germany
+8,2,Tommy,Tommy,Netherlands
+9,2,Conrad,Conrad,Belgium
+10,2,Harrison,Harrison,Morocco
+11,2,Diego,Diego,Colombia
+12,2,Ben (Jack),Ben (Jack),USA
+13,3,Dexter,Dexter,Mexico
+14,3,Tommy,Tommy,Senegal
+15,3,Conrad,Conrad,Norway
+16,3,Harrison,Harrison,Croatia
+17,3,Diego,Diego,Uruguay
+18,3,Ben (Jack),Ben (Jack),Ecuador
+19,4,Dexter,Dexter,Switzerland
+20,4,Tommy,Tommy,Türkiye
+21,4,Conrad,Conrad,Austria
+22,4,Harrison,Harrison,Japan
+23,4,Diego,Diego,South Korea
+24,4,Ben (Jack),Ben (Jack),Egypt
+25,5,Dexter,Dexter,Algeria
+26,5,Tommy,Tommy,Ivory Coast
+27,5,Conrad,Conrad,Scotland
+28,5,Harrison,Harrison,Canada
+29,5,Diego,Diego,Australia
+30,5,Ben (Jack),Ben (Jack),Ghana
+31,6,Dexter,Dexter,Sweden
+32,6,Tommy,Tommy,Czechia
+33,6,Conrad,Conrad,DR Congo
+34,6,Harrison,Harrison,Iran
+35,6,Diego,Diego,Paraguay
+36,6,Ben (Jack),Ben (Jack),Panama
+37,7,Dexter,Dexter,Saudi Arabia
+38,7,Tommy,Tommy,South Africa
+39,7,Conrad,Conrad,Bosnia and Herzegovina
+40,7,Harrison,Harrison,Jordan
+41,7,Diego,Diego,New Zealand
+42,7,Ben (Jack),Ben (Jack),Uzbekistan
+43,8,Dexter,Dexter,Qatar
+44,8,Tommy,Tommy,Cape Verde
+45,8,Conrad,Conrad,Tunisia
+46,8,Harrison,Harrison,Iraq
+47,8,Diego,Diego,Haiti
+48,8,Ben (Jack),Ben (Jack),Curaçao
