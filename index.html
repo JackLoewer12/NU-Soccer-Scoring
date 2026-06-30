@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Cup 2026 Draft Tracker — Ben's League</title>
+  <title>World Cup 2026 Draft Tracker</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,6 +67,13 @@
     .nation-name{flex:1;font-size:13px;}
     .nation-team{font-size:11px;color:var(--tx2);}
     .nation-pts{font-size:13px;font-weight:500;color:var(--green);}
+    .perf-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:.5rem;}
+    @media (max-width:640px){.perf-grid{grid-template-columns:1fr;}}
+    .perf-col-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:8px 14px;color:var(--tx2);}
+    .perf-move{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;flex-shrink:0;white-space:nowrap;}
+    .perf-move.up{background:rgba(26,71,42,.12);color:var(--green);}
+    .perf-move.down{background:rgba(239,68,68,.12);color:#ef4444;}
+    .perf-pickrank{font-size:10px;color:var(--tx3);white-space:nowrap;}
 
     /* Matches */
     .refresh-bar{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--tx2);margin-bottom:1rem;}
@@ -75,18 +82,26 @@
     .spin{animation:spin .7s linear infinite;display:inline-block;}
     @keyframes spin{to{transform:rotate(360deg)}}
     .bracket-wrap{overflow-x:auto;margin-bottom:1.5rem;}
-    .bracket{display:flex;gap:0;min-width:700px;}
-    .b-round{display:flex;flex-direction:column;flex:1;}
-    .b-round-title{font-size:10px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px 4px;background:var(--bg2);border-bottom:0.5px solid var(--bd1);}
-    .b-slots{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:8px 4px;gap:6px;}
-    .b-match{background:var(--bg1);border:0.5px solid var(--bd1);border-radius:var(--r-md);overflow:hidden;font-size:11px;}
+    .bracket-outer{display:flex;flex-direction:column;}
+    .bracket-round-headers{display:flex;min-width:900px;margin-bottom:4px;}
+    .bracket-round-hdr{flex:1;font-size:10px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;text-align:center;padding:6px 4px;background:var(--bg2);border-radius:4px;margin:0 2px;}
+    .bracket-body{position:relative;min-width:900px;}
+    .bracket-col{position:absolute;top:0;bottom:0;}
+    .b-slot{position:absolute;left:4px;right:4px;display:flex;align-items:center;}
+    .b-match{background:var(--bg1);border:0.5px solid var(--bd1);border-radius:var(--r-md);overflow:hidden;font-size:11px;width:100%;}
     .b-team{display:flex;align-items:center;gap:5px;padding:4px 7px;border-bottom:0.5px solid var(--bd1);}
     .b-team:last-child{border-bottom:none;}
     .b-team.winner{background:var(--bg2);font-weight:500;}
     .b-team.winner .b-score{color:var(--green);}
-    .b-tflag{font-size:13px;flex-shrink:0;}.b-tname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;}
+    .b-tflag{font-size:13px;flex-shrink:0;}.b-tname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;}
     .b-score{font-weight:500;min-width:12px;text-align:right;color:var(--tx2);}
+    .b-score-pk{font-size:9px;color:var(--tx3);margin-left:2px;}
+    .b-pk-label{font-size:8px;color:var(--tx3);text-align:center;text-transform:uppercase;letter-spacing:.05em;padding:1px 0;border-top:0.5px dashed var(--bd1);}
     .b-tbd{padding:4px 7px;color:var(--tx3);font-size:10px;font-style:italic;}
+    .bracket-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;font-size:12px;color:var(--tx2);align-items:center;}
+    .bracket-legend-item{display:flex;align-items:center;gap:5px;}
+    .bracket-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .bracket-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;}
     .upcoming-title{font-size:13px;font-weight:500;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;}
     .match-list{display:grid;gap:6px;}
     .mc{background:var(--bg1);border:0.5px solid var(--bd1);border-radius:var(--r-lg);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -176,7 +191,7 @@
 
   <div class="hdr">
     <div>
-      <h1><i class="ti ti-trophy" aria-hidden="true" style="margin-right:8px"></i>World Cup 2026 Draft Tracker — Ben's League</h1>
+      <h1><i class="ti ti-trophy" aria-hidden="true" style="margin-right:8px"></i>World Cup 2026 Draft Tracker</h1>
       <p>USA · Canada · Mexico &nbsp;·&nbsp; June 11 – July 19, 2026</p>
     </div>
     <div class="hdr-badges">
@@ -188,8 +203,9 @@
   <div class="tabs">
     <button class="tab active" onclick="showTab('leaderboard',this)"><i class="ti ti-podium" aria-hidden="true" style="margin-right:4px"></i>Leaderboard</button>
     <button class="tab" onclick="showTab('matches',this)"><i class="ti ti-ball-football" aria-hidden="true" style="margin-right:4px"></i>Matches</button>
+    <button class="tab" onclick="showTab('bracket',this)"><i class="ti ti-tournament" aria-hidden="true" style="margin-right:4px"></i>Bracket</button>
     <button class="tab" onclick="showTab('rosters',this)"><i class="ti ti-users" aria-hidden="true" style="margin-right:4px"></i>Rosters</button>
-    <button class="tab" onclick="showTab('standings',this)"><i class="ti ti-list-numbers" aria-hidden="true" style="margin-right:4px"></i>Standings</button>
+    <button class="tab" onclick="showTab('standings',this)"><i class="ti ti-list-numbers" aria-hidden="true" style="margin-right:4px"></i>Group Standings</button>
     <button class="tab" onclick="showTab('settings',this)"><i class="ti ti-settings" aria-hidden="true" style="margin-right:4px"></i>Settings</button>
   </div>
 
@@ -197,7 +213,9 @@
   <div id="tab-leaderboard" class="section active">
     <div class="leg" id="scoring-legend"></div>
     <div id="leaderboard-body"><div class="loading">Loading…</div></div>
-    <div class="section-title">Top 5 scoring nations</div>
+    <div class="section-title">Draft value</div>
+    <div class="perf-grid" id="perf-grid"></div>
+    <div class="section-title">All nations</div>
     <div class="nation-table" id="top-nations"></div>
   </div>
 
@@ -207,15 +225,22 @@
       <button class="btn-ref" onclick="fetchMatches(true)"><i class="ti ti-refresh" id="ref-icon" aria-hidden="true"></i> Refresh</button>
       <span id="last-updated"></span>
     </div>
-    <div id="bracket-container"></div>
     <div class="upcoming-title">Upcoming matches</div>
     <div class="match-list" id="match-list"></div>
+  </div>
+
+  <!-- BRACKET -->
+  <div id="tab-bracket" class="section">
+    <div class="refresh-bar">
+      <button class="btn-ref" onclick="fetchMatches(true)"><i class="ti ti-refresh" aria-hidden="true"></i> Refresh</button>
+    </div>
+    <div id="bracket-container"></div>
   </div>
 
   <!-- ROSTERS -->
   <div id="tab-rosters" class="section">
     <div class="roster-grid" id="roster-grid"><div class="loading">Loading…</div></div>
-    <div class="section-title">Draft board</div>
+    <div class="section-title" id="draft-board-title">Draft board</div>
     <div class="draft-board-wrap">
       <div id="draft-board-container"><div class="loading">Loading…</div></div>
     </div>
@@ -283,7 +308,9 @@ let state = {
   assign: {},      // country → team index
   scoring: {},
   scoringRows: [],
-  matches: []
+  matches: [],
+  draftType: 'loop'  // 'loop' = same pick order every round (1,2,3,4,5,6,1,2,3...)
+                      // 'snake' = order reverses each round (1,2,3,4,4,3,2,1,1,2,3,4...)
 };
 
 // ── CSV parser ────────────────────────────────────────────────────────────────
@@ -372,7 +399,7 @@ async function fetchMatches(force) {
   try {
     const r = await fetch(FIXTURES_URL+'?nc='+Date.now());
     const d = await r.json();
-    state.matches = d.matches||[];
+    state.matches = normMatches(d.matches||[]);
     try {
       localStorage.setItem('wc26_matches',JSON.stringify(state.matches));
       localStorage.setItem('wc26_updated',new Date().toISOString());
@@ -380,14 +407,14 @@ async function fetchMatches(force) {
     updateLastUpdated(); renderAll(); updateBadge();
     if (force) toast('Matches refreshed!');
   } catch(e) {
-    try { const c=localStorage.getItem('wc26_matches'); if(c) state.matches=JSON.parse(c); } catch(e2){}
+    try { const c=localStorage.getItem('wc26_matches'); if(c) state.matches=normMatches(JSON.parse(c)); } catch(e2){}
     renderAll();
     if (force) toast('Could not refresh — using cached data');
   }
   icon.classList.remove('spin');
 }
 
-function renderAll() { renderLeaderboard(); renderRosters(); renderMatches(); renderStandings(); }
+function renderAll() { renderLeaderboard(); renderRosters(); renderMatches(); renderBracket(); renderStandings(); }
 
 function updateLastUpdated() {
   const v = localStorage.getItem('wc26_updated');
@@ -450,11 +477,30 @@ function matchStatus(m) {
 }
 function winner(m) {
   if (!m.score) return null;
-  const s=m.score.ft||m.score;
-  if (!Array.isArray(s)||s.length<2) return null;
-  if (s[0]>s[1]) return m.team1;
-  if (s[1]>s[0]) return m.team2;
+  // Knockout matches that are level after 90/120 min are decided by penalties.
+  // score.p (if present) is the authoritative result whenever ft is a draw.
+  const ft = m.score.ft || m.score;
+  if (Array.isArray(ft) && ft.length >= 2 && ft[0] === ft[1] && Array.isArray(m.score.p)) {
+    const p = m.score.p;
+    if (p[0] > p[1]) return m.team1;
+    if (p[1] > p[0]) return m.team2;
+    return null;
+  }
+  const s = ft;
+  if (!Array.isArray(s) || s.length < 2) return null;
+  if (s[0] > s[1]) return m.team1;
+  if (s[1] > s[0]) return m.team2;
   return null;
+}
+
+// Returns { sc: [g1,g2], pk: [p1,p2]|null } — sc is the goals to show (prefers et over ft
+// if extra time was played), pk is the penalty score if the match went to a shootout.
+function scoreParts(m) {
+  if (!m.score) return null;
+  const sc = m.score.et || m.score.ft || m.score;
+  if (!Array.isArray(sc) || sc.length < 2) return null;
+  const pk = Array.isArray(m.score.p) ? m.score.p : null;
+  return { sc, pk };
 }
 
 // ── Leaderboard ───────────────────────────────────────────────────────────────
@@ -462,7 +508,10 @@ function isDraw(m) {
   if (!m.score) return false;
   const s = m.score.ft || m.score;
   if (!Array.isArray(s) || s.length < 2) return false;
-  return s[0] === s[1];
+  if (s[0] !== s[1]) return false;
+  // Level after 90/120 min, but if penalties decided it, it's not a draw.
+  if (Array.isArray(m.score.p)) return false;
+  return true;
 }
 
 function getTeamPoints(idx) {
@@ -472,13 +521,12 @@ function getTeamPoints(idx) {
     const stage=roundToStage(m.round);
     // Group stage tie
     if (stage==='group' && isDraw(m)) {
-      if (countries.includes(normName(m.team1)) || countries.includes(normName(m.team2))) {
-        bd['group_tie']+=(state.scoring['group_tie']||0);
-      }
+      if (countries.includes(m.team1)) bd['group_tie']+=(state.scoring['group_tie']||0);
+      if (countries.includes(m.team2)) bd['group_tie']+=(state.scoring['group_tie']||0);
       return;
     }
     // Win
-    const w=winner(m); if(!w||!countries.includes(normName(w))) return;
+    const w=winner(m); if(!w||!countries.includes(w)) return;
     if (stage&&state.scoring[stage]) bd[stage]+=(state.scoring[stage]||0);
   });
   return {total:Object.values(bd).reduce((a,b)=>a+b,0),breakdown:bd};
@@ -510,78 +558,257 @@ function renderLeaderboard() {
     </div>`;
   }).join('');
 
-  // Top 5 nations
+  // All 48 draft nations
   const nationPts=[];
-  Object.keys(FLAGS).forEach(country=>{
-    const wins=state.matches.filter(m=>normName(winner(m))===country);
-    const draws=state.matches.filter(m=>isDraw(m)&&roundToStage(m.round)==='group'&&(normName(m.team1)===country||normName(m.team2)===country));
+  Object.keys(state.assign).forEach(country=>{
+    const wins=state.matches.filter(m=>winner(m)===country);
+    const draws=state.matches.filter(m=>isDraw(m)&&roundToStage(m.round)==='group'&&(m.team1===country||m.team2===country));
     const pts=wins.reduce((a,m)=>{const s=roundToStage(m.round);return a+(s&&state.scoring[s]?state.scoring[s]:0);},0)
              +draws.length*(state.scoring['group_tie']||0);
-    if (pts>0){
-      const tidx=state.assign[country]!==undefined?state.assign[country]:-1;
-      nationPts.push({country,pts,teamName:tidx>=0?state.teams[tidx]?.name:'Unassigned',teamColor:tidx>=0?state.teams[tidx]?.color:'#aaa'});
-    }
+    const tidx=state.assign[country]!==undefined?state.assign[country]:-1;
+    nationPts.push({country,pts,teamName:tidx>=0?state.teams[tidx]?.name:'Unassigned',teamColor:tidx>=0?state.teams[tidx]?.color:'#aaa'});
   });
-  nationPts.sort((a,b)=>b.pts-a.pts);
-  const top5=nationPts.slice(0,5);
-  document.getElementById('top-nations').innerHTML = top5.length
-    ? top5.map((n,i)=>`<div class="nation-row">
+  nationPts.sort((a,b)=>b.pts-a.pts||a.country.localeCompare(b.country));
+  document.getElementById('top-nations').innerHTML = nationPts.length
+    ? nationPts.map((n,i)=>`<div class="nation-row">
         <div class="nation-rank">${i+1}</div>
         <div class="nation-flag">${flag(n.country)}</div>
         <div class="nation-name">${n.country}</div>
         <div class="nation-team"><span class="cdot" style="background:${n.teamColor}"></span>${n.teamName}</div>
-        <div class="nation-pts">${n.pts} pts</div>
+        <div class="nation-pts" style="${n.pts===0?'color:var(--tx3)':''}">${ n.pts>0?n.pts+' pts':'—'}</div>
       </div>`).join('')
-    : '<div style="padding:14px;font-size:13px;color:var(--tx3);text-align:center">No wins yet — check back once the tournament begins</div>';
+    : '<div style="padding:14px;font-size:13px;color:var(--tx3);text-align:center">No data yet</div>';
+
+  // Draft value: compare draft pick order to current points-rank to find over/underperformers.
+  // currentRank 1 = most points. draftPick 1 = drafted first overall.
+  // A team picked late (high pick #) but ranking well (low rank #) is overperforming.
+  const pickByCountry = {};
+  state.draftRows.forEach(row => { pickByCountry[row.country] = parseInt(row.pick); });
+
+  const valueRows = nationPts
+    .map((n, i) => ({ ...n, currentRank: i + 1, pick: pickByCountry[n.country] }))
+    .filter(n => Number.isFinite(n.pick))
+    .map(n => ({ ...n, delta: n.pick - n.currentRank })); // positive = overperforming
+
+  const overperformers = [...valueRows].sort((a,b)=>b.delta-a.delta || b.pts-a.pts).slice(0,5);
+  const underperformers = [...valueRows].sort((a,b)=>a.delta-b.delta || a.pts-b.pts).slice(0,5);
+
+  function perfRowHTML(n) {
+    const isUp = n.delta > 0;
+    const moveLabel = n.delta === 0 ? 'Even' : `${isUp?'▲':'▼'} ${Math.abs(n.delta)}`;
+    const moveClass = n.delta === 0 ? '' : (isUp ? 'up' : 'down');
+    return `<div class="nation-row">
+      <div class="nation-flag">${flag(n.country)}</div>
+      <div class="nation-name">${n.country}<div class="perf-pickrank">Pick ${n.pick} · now #${n.currentRank}</div></div>
+      <div class="nation-team"><span class="cdot" style="background:${n.teamColor}"></span>${n.teamName}</div>
+      ${moveClass ? `<div class="perf-move ${moveClass}">${moveLabel}</div>` : `<div class="perf-move" style="color:var(--tx3);background:transparent">Even</div>`}
+    </div>`;
+  }
+
+  document.getElementById('perf-grid').innerHTML = valueRows.length
+    ? `<div class="nation-table">
+        <div class="perf-col-title">Top 5 overperformers</div>
+        ${overperformers.map(perfRowHTML).join('') || '<div style="padding:14px;font-size:13px;color:var(--tx3);text-align:center">No data yet</div>'}
+      </div>
+      <div class="nation-table">
+        <div class="perf-col-title">Top 5 underperformers</div>
+        ${underperformers.map(perfRowHTML).join('') || '<div style="padding:14px;font-size:13px;color:var(--tx3);text-align:center">No data yet</div>'}
+      </div>`
+    : '<div style="padding:14px;font-size:13px;color:var(--tx3);text-align:center;grid-column:1/-1">No data yet</div>';
 }
 
 // ── Bracket ───────────────────────────────────────────────────────────────────
 function renderBracket() {
-  const rounds=['Round of 32','Round of 16','Quarter-final','Semi-final','Final'];
-  const roundMatches=rounds.map(r=>state.matches.filter(m=>m.round===r));
-  const hasKnockout=roundMatches.some(r=>r.length>0);
+  // The official FIFA World Cup 2026 knockout schedule. Each round's matches are listed here
+  // in true top-to-bottom bracket-slot order. This mapping is fixed by FIFA's published bracket
+  // (it is NOT simply ascending by fixture `num`, since e.g. R16 match 89 = W74 v W77, while
+  // match 90 = W73 v W75 — the pairing skips around). Hardcoding this guarantees that when two
+  // sibling matches finish, their winner correctly lands in the right slot of the next round.
+  const BRACKET_NUMS = {
+    'Round of 32':   [74,77,73,75,83,84,81,82,76,78,79,80,86,88,85,87],
+    'Round of 16':   [89,90,93,94,91,92,95,96],
+    'Quarter-final': [97,98,99,100],
+    'Semi-final':    [101,102],
+    'Final':         [104],
+  };
+
+  const rounds = ['Round of 32','Round of 16','Quarter-final','Semi-final','Final'];
+  const byNum = {};
+  state.matches.forEach(m => { if (m.num !== undefined) byNum[m.num] = m; });
+  const roundMatches = rounds.map(r => BRACKET_NUMS[r].map(n => byNum[n] || null));
+  const hasKnockout = roundMatches.some(r => r.some(m => m));
+
   if (!hasKnockout) {
-    document.getElementById('bracket-container').innerHTML=
+    document.getElementById('bracket-container').innerHTML =
       `<div style="background:var(--bg2);border-radius:var(--r-lg);padding:14px 16px;font-size:13px;color:var(--tx2);margin-bottom:1.5rem">
         <i class="ti ti-tournament" aria-hidden="true" style="margin-right:6px"></i>
         Knockout bracket will appear here once the group stage is complete (from June 28).
       </div>`;
     return;
   }
-  function bMatch(m) {
+
+  function getBracketTeamColor(name) {
+    const idx = state.assign[name];
+    if (idx === undefined) return null;
+    return state.teams[idx]?.color || null;
+  }
+
+  function bMatchHTML(m) {
     if (!m) return `<div class="b-match"><div class="b-tbd">TBD</div><div class="b-tbd">TBD</div></div>`;
-    const sc=m.score?(m.score.ft||m.score):null;
-    const w=winner(m);
-    function bTeam(name,score) {
-      const isW=w&&w===name;
-      return `<div class="b-team ${isW?'winner':''}">
+    const parts = scoreParts(m);
+    const sc = parts ? parts.sc : null;
+    const pk = parts ? parts.pk : null;
+    const w = winner(m);
+    function bTeam(name, score, pkScore) {
+      const isW = w && w === name;
+      const color = getBracketTeamColor(name);
+      const border = color ? `border-left:3px solid ${color};padding-left:4px;` : `border-left:3px solid transparent;padding-left:4px;`;
+      return `<div class="b-team ${isW ? 'winner' : ''}" style="${border}">
         <span class="b-tflag">${flag(name)}</span>
         <span class="b-tname" title="${name}">${name}</span>
-        ${sc?`<span class="b-score">${score}</span>`:''}
+        ${pkScore !== undefined ? `<span class="b-score-pk">(${pkScore})</span>` : ''}
+        ${sc ? `<span class="b-score">${score}</span>` : ''}
       </div>`;
     }
-    return `<div class="b-match">${bTeam(m.team1,sc?sc[0]:'')}${bTeam(m.team2,sc?sc[1]:'')}</div>`;
+    return `<div class="b-match">
+      ${bTeam(m.team1, sc ? sc[0] : '', pk ? pk[0] : undefined)}
+      ${bTeam(m.team2, sc ? sc[1] : '', pk ? pk[1] : undefined)}
+      ${pk ? `<div class="b-pk-label">Pens</div>` : ''}
+    </div>`;
   }
-  document.getElementById('bracket-container').innerHTML=
-    `<div class="bracket-wrap"><div class="bracket">`+
-    rounds.map((r,ri)=>`<div class="b-round">
-      <div class="b-round-title">${r}</div>
-      <div class="b-slots">${roundMatches[ri].map(m=>bMatch(m)).join('')}</div>
-    </div>`).join('')+
-    `</div></div>`;
+
+  // Layout constants
+  const MATCH_H   = 46;   // px height of a normal match card; PK matches get a bit taller via CSS auto-height (slot just needs enough headroom)
+  const NUM_SLOTS = 16;   // R32 has 16 matches (widest round)
+  const SLOT_H    = 58;   // px per slot unit — gives comfortable spacing incl. PK label row
+  const TOTAL_H   = NUM_SLOTS * SLOT_H;  // 832px total bracket height
+  const NUM_ROUNDS = rounds.length;      // 5
+
+  // For round i (0=R32), there are 16/2^i matches, each spanning 2^i slots.
+  // The center of slot-group j (0-based) = (j + 0.5) * 2^i * SLOT_H px from top.
+  function slotCenterPx(roundIdx, matchIdx) {
+    const slotsPerMatch = Math.pow(2, roundIdx);
+    return (matchIdx * slotsPerMatch + slotsPerMatch / 2) * SLOT_H;
+  }
+
+  // Column widths: each round gets equal share
+  const COL_W_PCT = 100 / NUM_ROUNDS;
+
+  // Build round header row
+  const hdrs = rounds.map((r, ri) =>
+    `<div class="bracket-round-hdr" style="flex:1">${r}</div>`
+  ).join('');
+
+  // Build each round's match slots as absolutely positioned divs
+  // We'll collect connector line data for SVG overlay
+  const connectors = []; // { x1, y1, x2, y2 } in px within the bracket-body
+
+  let colsHTML = '';
+  rounds.forEach((r, ri) => {
+    const matches = roundMatches[ri];
+    const numMatches = Math.pow(2, NUM_ROUNDS - 1 - ri); // 16, 8, 4, 2, 1
+    const leftPct  = ri * COL_W_PCT;
+    const widthPct = COL_W_PCT;
+
+    let slotsHTML = '';
+    for (let mi = 0; mi < numMatches; mi++) {
+      const centerPx = slotCenterPx(ri, mi);
+      const topPx    = centerPx - MATCH_H / 2;
+
+      slotsHTML += `<div class="b-slot" style="top:${topPx}px;height:${MATCH_H}px;">
+        ${bMatchHTML(matches[mi] || null)}
+      </div>`;
+
+      // Connector lines: from right edge of this match to left edge of parent match in next round
+      if (ri < NUM_ROUNDS - 1) {
+        // This match's right-edge midpoint
+        const x1 = (leftPct + widthPct) / 100; // fraction of total width
+        const y1 = centerPx;
+        // Parent match index in next round
+        const parentMi = Math.floor(mi / 2);
+        const parentCenter = slotCenterPx(ri + 1, parentMi);
+        const x2 = (leftPct + widthPct) / 100; // same x, will be used as start
+        const y2 = parentCenter;
+        connectors.push({ ri, mi, x1frac: (leftPct + widthPct) / 100, y1: centerPx, y2: parentCenter, parentMi });
+      }
+    }
+
+    colsHTML += `<div class="bracket-col" style="left:${leftPct}%;width:${widthPct}%;position:absolute;top:0;bottom:0;">${slotsHTML}</div>`;
+  });
+
+  // Build SVG connector lines using a 1000xTOTAL_H viewBox.
+  // Each column is colWpx wide. For each match: stub right to gap, then (once per pair)
+  // vertical bar between siblings, then stub left into the parent match.
+  const SVG_W = 1000;
+  const colWpx = SVG_W / NUM_ROUNDS;
+
+  let svgLines = '';
+  connectors.forEach(({ ri, mi, y1 }) => {
+    const gapX        = (ri + 1) * colWpx;   // x of the boundary between columns ri and ri+1
+    const matchRightX = gapX - 6;             // right edge of match card in round ri
+    const matchLeftX  = gapX + 6;             // left edge of match card in round ri+1
+
+    // Horizontal stub from match right edge to the column gap
+    svgLines += `<line x1="${matchRightX}" y1="${y1}" x2="${gapX}" y2="${y1}" stroke="var(--bd2)" stroke-width="1.2"/>`;
+
+    if (mi % 2 === 0) {
+      // Draw vertical bar + horizontal feed to parent once per sibling pair
+      const siblingY = slotCenterPx(ri, mi + 1);
+      const parentY  = (y1 + siblingY) / 2;
+      svgLines += `<line x1="${gapX}" y1="${y1}"      x2="${gapX}"      y2="${siblingY}" stroke="var(--bd2)" stroke-width="1.2"/>`;
+      svgLines += `<line x1="${gapX}" y1="${parentY}" x2="${matchLeftX}" y2="${parentY}" stroke="var(--bd2)" stroke-width="1.2"/>`;
+    }
+  });
+
+  const legendHTML = state.teams.length
+    ? `<div class="bracket-legend">
+        <span style="font-weight:500;color:var(--tx2)">Roster:</span>
+        ${state.teams.map(t => `<span class="bracket-legend-item"><span class="bracket-legend-dot" style="background:${t.color}"></span>${t.name}</span>`).join('')}
+      </div>`
+    : '';
+
+  document.getElementById('bracket-container').innerHTML =
+    legendHTML +
+    `<div class="bracket-wrap">
+      <div class="bracket-outer">
+        <div class="bracket-round-headers" style="display:flex;min-width:900px;margin-bottom:4px;">
+          ${hdrs}
+        </div>
+        <div class="bracket-body" style="position:relative;min-width:900px;height:${TOTAL_H}px;">
+          ${colsHTML}
+          <svg class="bracket-svg" viewBox="0 0 ${SVG_W} ${TOTAL_H}" preserveAspectRatio="none">
+            ${svgLines}
+          </svg>
+        </div>
+      </div>
+    </div>`;
 }
 
 // ── Upcoming matches ──────────────────────────────────────────────────────────
 function renderMatches() {
-  renderBracket();
-  const upcoming=state.matches.filter(m=>matchStatus(m)!=='done').slice(0,15);
+  // Sort upcoming matches chronologically by date + time (converted to UTC ms)
+  const upcoming = state.matches
+    .filter(m => matchStatus(m) !== 'done')
+    .sort((a, b) => {
+      function toUtcMs(m) {
+        if (!m.date) return Infinity;
+        if (!m.time) return new Date(m.date + 'T23:59:00Z').getTime();
+        const match = m.time.match(/^(\d{1,2}):(\d{2})\s+UTC([+-]\d+)$/);
+        if (!match) return new Date(m.date + 'T23:59:00Z').getTime();
+        const [, hh, mm, offsetStr] = match;
+        return new Date(`${m.date}T${hh.padStart(2,'0')}:${mm}:00Z`).getTime()
+          - parseInt(offsetStr, 10) * 3600000;
+      }
+      return toUtcMs(a) - toUtcMs(b);
+    })
+    .slice(0, 15);
   if (!upcoming.length){ document.getElementById('match-list').innerHTML='<div class="no-m">No upcoming matches</div>'; return; }
   document.getElementById('match-list').innerHTML=upcoming.map(m=>{
     const st=matchStatus(m);
     const sc=m.score?(m.score.ft||m.score):null;
     const w=winner(m);
-    const t1idx=state.assign[normName(m.team1)]!==undefined?state.assign[normName(m.team1)]:-1;
-    const t2idx=state.assign[normName(m.team2)]!==undefined?state.assign[normName(m.team2)]:-1;
+    const t1idx=state.assign[m.team1]!==undefined?state.assign[m.team1]:-1;
+    const t2idx=state.assign[m.team2]!==undefined?state.assign[m.team2]:-1;
     const tags=[...new Set([t1idx,t2idx].filter(i=>i>=0))].map(i=>
       `<span class="dtag" style="background:${state.teams[i].color}22;color:${state.teams[i].color}">${state.teams[i].name}</span>`
     ).join('');
@@ -610,8 +837,8 @@ function renderRosters() {
   document.getElementById('roster-grid').innerHTML=state.teams.map((t,i)=>{
     const {total}=getTeamPoints(i);
     const rows=t.countries.map(name=>{
-      const wins=state.matches.filter(m=>normName(winner(m))===name);
-      const draws=state.matches.filter(m=>isDraw(m)&&roundToStage(m.round)==='group'&&(normName(m.team1)===name||normName(m.team2)===name));
+      const wins=state.matches.filter(m=>winner(m)===name);
+      const draws=state.matches.filter(m=>isDraw(m)&&roundToStage(m.round)==='group'&&(m.team1===name||m.team2===name));
       const pts=wins.reduce((a,m)=>{const s=roundToStage(m.round);return a+(s&&state.scoring[s]?state.scoring[s]:0);},0)
                +draws.length*(state.scoring['group_tie']||0);
       const stages=wins.map(m=>state.scoringRows.find(r=>r.stage===roundToStage(m.round))?.label).filter(Boolean);
@@ -641,19 +868,24 @@ function renderDraftBoard() {
   const rows = [...state.draftRows].sort((a,b)=>parseInt(a.pick)-parseInt(b.pick));
   const numRounds = Math.max(...rows.map(r=>parseInt(r.round)));
   const numTeams  = state.teams.length;
+  const isSnake   = state.draftType === 'snake';
 
-  // Build a grid: rounds × teams, filled by pick order
-  // Odd rounds: left→right, even rounds: right→left (snake)
+  const titleEl = document.getElementById('draft-board-title');
+  if (titleEl) titleEl.textContent = isSnake ? 'Snake draft board' : 'Draft board';
+
+  // Build a grid: rounds × teams, filled by pick order.
+  // Snake draft: odd rounds left→right, even rounds right→left.
+  // Loop draft: every round goes left→right in the same fixed team order.
   const grid = {}; // grid[round][col] = row
   rows.forEach(row => {
     const rnd = parseInt(row.round);
     const posInRound = (parseInt(row.pick)-1) % numTeams; // 0-based position within round
-    const col = posInRound; // linear draft (1→6 repeating every round)
+    const col = (isSnake && rnd % 2 === 0) ? (numTeams - 1 - posInRound) : posInRound;
     if (!grid[rnd]) grid[rnd] = {};
     grid[rnd][col] = row;
   });
 
-  // Header: Round | Team1 | Team2 | Team3 | Team4
+  // Header: Round | Team1 | Team2 | ... | TeamN
   const thTeams = state.teams.map((t,i)=>
     `<th style="border-top:3px solid ${t.color}">${t.name}</th>`
   ).join('');
@@ -668,8 +900,9 @@ function renderDraftBoard() {
     <tbody>`;
 
   for (let rnd=1; rnd<=numRounds; rnd++) {
+    const isSnakeBack = isSnake && rnd % 2 === 0;
     tableHTML += `<tr>
-      <td class="round-cell">${rnd}</td>`;
+      <td class="round-cell">${rnd}${isSnake ? `<span class="snake-arrow">${isSnakeBack?'←':'→'}</span>` : ''}</td>`;
     for (let col=0; col<numTeams; col++) {
       const pick = grid[rnd]?.[col];
       const teamIdx = pick ? state.teams.findIndex(t=>t.name===pick.team_name) : -1;
@@ -713,11 +946,32 @@ function renderSettings() {
 // ── Name normalisation (fixture JSON ↔ draft.csv) ────────────────────────────
 // Maps fixture JSON spellings → official FIFA / draft.csv spellings
 const NAME_MAP = {
-  'Czech Republic':      'Czechia',
-  'Bosnia & Herzegovina':'Bosnia and Herzegovina',
-  'Turkey':              'Türkiye',
+  'Czech Republic':           'Czechia',
+  'Bosnia & Herzegovina':     'Bosnia and Herzegovina',
+  'Bosnia-Herzegovina':       'Bosnia and Herzegovina',
+  'Turkey':                   'Türkiye',
+  'Turkiye':                  'Türkiye',
+  'Korea Republic':           'South Korea',
+  'Republic of Korea':        'South Korea',
+  'United States':            'USA',
+  'United States of America': 'USA',
+  "Côte d'Ivoire":            'Ivory Coast',
+  "Cote d'Ivoire":            'Ivory Coast',
+  'Congo DR':                 'DR Congo',
+  'Democratic Republic of Congo': 'DR Congo',
+  'IR Iran':                  'Iran',
 };
 function normName(n){ return NAME_MAP[n] || n; }
+
+// Normalise all team names in a matches array at ingestion time so every
+// downstream comparison uses draft.csv spellings without extra normName calls.
+function normMatches(matches) {
+  return matches.map(m => ({
+    ...m,
+    team1: m.team1 ? normName(m.team1) : m.team1,
+    team2: m.team2 ? normName(m.team2) : m.team2,
+  }));
+}
 
 // ── Standings ─────────────────────────────────────────────────────────────────
 function renderStandings() {
@@ -853,13 +1107,14 @@ function showTab(name, btn) {
   btn.classList.add('active');
   if (name==='leaderboard') renderLeaderboard();
   if (name==='matches') { renderMatches(); updateLastUpdated(); }
+  if (name==='bracket') renderBracket();
   if (name==='rosters') renderRosters();
   if (name==='standings') renderStandings();
   if (name==='settings') renderSettings();
 }
 
 // ── Boot ──────────────────────────────────────────────────────────────────────
-try { const c=localStorage.getItem('wc26_matches'); if(c) state.matches=JSON.parse(c); } catch(e){}
+try { const c=localStorage.getItem('wc26_matches'); if(c) state.matches=normMatches(JSON.parse(c)); } catch(e){}
 updateBadge(); updateLastUpdated();
 Promise.all([fetchDraft(), fetchScoring()]).then(()=>{ fetchMatches(false); });
 setInterval(()=>fetchMatches(false), 3*60*1000);
